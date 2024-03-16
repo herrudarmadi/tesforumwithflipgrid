@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <textarea name="" id="comment" cols="30" rows="10" placeholder="Paste your Flip video URL here and optionally write your comments. "></textarea>
+    <br><button onclick="submit()">Submit</button>
+
+    <div id="comments"></div>
+
+    <script>
+        /*
+        <p>berikut jawaban kami</p>
+        https://flip.com/s/Kz4JijQU3zwk
+        https://flip.com/s/rEW4-Nt5jBof 
+        <p>mohon tanggapannya Terima kasih</p>
+        */
+        let comment = document.getElementById('comment');
+        let comments = document.getElementById('comments');
+        let commentCount = 0;
+        function submit() {
+            var commentEl = document.createElement('div')
+            var flipURLs = checkFlip(comment.value)
+            if (flipURLs == false) {
+                return;
+            } 
+            var html = createFlipComment(comment.value, flipURLs);
+            commentCount++;
+            commentEl.innerHTML = html
+            comments.append(commentEl);
+            comment.value = '';
+        }
+
+        const FlipURLregex = /(https:\/\/flip\.com\/[\/a-zA-Z0-9_-]+)/g;
+        function checkFlip(value) {
+            const matches = value.match(FlipURLregex);
+            if (!matches) {
+                alert('no flip url found');
+                return false; // No match found
+            }
+            if (!matches.every(match => match.startsWith('https://flip.com/s/'))) {
+                alert('some of the flip url is invalid');
+                return false; 
+            }
+
+            return matches;
+        }
+
+        function createFlipComment(value, flipURLs) {
+            value = '<div class="comment">' + value.replace(FlipURLregex, '');
+            
+            flipURLs.forEach((src, index) => {
+                if (index == 0)
+                    value += '<div><iframe id="if'+commentCount+'" src="'+src+'" ></iframe></div>';
+                
+                var classname = index == 0 ? 'class="thumb-selected"' : '';
+
+                if (flipURLs.length > 1)
+                    value += `<a href="#" ${classname} id="thumb${index}-${commentCount}" onclick="changeIframe(this, ${index}, ${commentCount}, '${src}'); return false"> thumbnail ${index+1} </a> &nbsp; `;
+            });
+
+            value += '</div>';
+
+            return value;
+        }
+
+        function changeIframe(thumb, thumbIndex, targetIframeId, src) {
+            const iframe = document.getElementById('if'+targetIframeId);
+            iframe.setAttribute('src', src);
+            thumb.parentElement.querySelectorAll('.thumb-selected').forEach(e => e.classList.remove('thumb-selected'))
+            thumb.classList.add('thumb-selected');
+        }
+
+    </script>
+    <style>
+        .comment {
+            border: 1px solid #ccc;
+            border-right:none;
+            border-left:none;
+            padding: 16px;
+            margin: 16px 0 16px 0;
+        }
+        .comment iframe {
+            border: none;
+            width: 100%;
+            height: 380px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+        .comment .thumb-selected {
+            border: 2px solid #F18700;
+        }
+    </style>
+</body>
+</html>
